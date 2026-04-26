@@ -1,10 +1,32 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Buy {{ item.name }}</title>
+    <script src="https://js.stripe.com/v3/"></script>
 </head>
 <body>
+    <h1>{{ item.name }}</h1>
+    <p>{{ item.description }}</p>
+    <p>Цена: ${{ item.price }}</p>
+    <button id="buy-button">Buy</button>
 
+    <script>
+        const stripe = Stripe('{{ publishable_key }}');
+        const buyButton = document.getElementById('buy-button');
+
+        buyButton.addEventListener('click', () => {
+            fetch('/buy/{{ item.id }}')
+                .then(response => response.json())
+                .then(session => {
+                    return stripe.redirectToCheckout({ sessionId: session.id });
+                })
+                .then(result => {
+                    if (result.error) {
+                        alert(result.error.message);
+                    }
+                });
+        });
+    </script>
 </body>
 </html>
