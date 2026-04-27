@@ -18,15 +18,25 @@
         buyButton.addEventListener('click', () => {
             fetch('/buy/{{ item.id }}')
                 .then(response => response.json())
-                .then(session => {
-                    return stripe.redirectToCheckout({ sessionId: session.id });
-                })
-                .then(result => {
-                    if (result.error) {
-                        alert(result.error.message);
-                    }
-                });
+                .then(data => {
+            // Перенаправляем браузер на страницу Stripe
+              if (data.url) {
+                window.location.href = data.url;
+              }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Ошибка при создании платежа');
         });
+});
     </script>
+
+    <hr>
+    <h3>Купить через заказ (Order)</h3>
+    <p>Этот способ создаёт заказ в базе данных перед оплатой.</p>
+    <form action="{% url 'add_to_order' item.id %}" method="post">
+        {% csrf_token %}
+        <button type="submit">Добавить в заказ</button>
+    </form>
 </body>
 </html>
